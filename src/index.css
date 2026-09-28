@@ -1,34 +1,40 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --ink: #4a3f5c;
+  --ink-soft: #7a6f8c;
+  --bg: #fffaf0;
+  --bg-2: #fdf0f4;
+  --card: #ffffff;
+  --line: #4a3f5c;
+  --mint: #b8e0d2;
+  --peach: #ffc4a3;
+  --lavender: #c3b1e1;
+  --butter: #ffe28a;
+  --sky: #a8d8ff;
+  --blush: #ff9eb1;
+  --accent: #ff7a95;
+  --shadow: 4px 5px 0 var(--line);
+  --shadow-sm: 2px 3px 0 var(--line);
+  --radius: 22px;
+  --font-display: 'Fredoka', 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-
-  font: 16px/1.5 var(--sans);
-  color-scheme: light dark;
-  color: var(--text);
+  font: 17px/1.55 var(--font-body);
+  color: var(--ink);
   background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  color-scheme: light;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --ink: #f4ecff;
+    --ink-soft: #c2b6d8;
+    --bg: #262040;
+    --bg-2: #2f2850;
+    --card: #342c58;
+    --line: #120e22;
+    color-scheme: dark;
   }
 }
 
@@ -38,10 +44,45 @@
 
 body {
   margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 10%, var(--bg-2) 0, transparent 40%),
+    radial-gradient(circle at 90% 60%, var(--bg-2) 0, transparent 40%),
+    var(--bg);
+  overflow-x: hidden;
 }
 
-h1, h2 {
-  font-family: var(--heading);
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
   font-weight: 600;
-  color: var(--text-h);
+  line-height: 1.15;
+  margin: 0 0 0.4em;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+:focus-visible {
+  outline: 3px dashed var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
+  }
 }

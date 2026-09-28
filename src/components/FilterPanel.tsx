@@ -1,81 +1,152 @@
-import type { FilterOptions } from '../utils/generator';
+import type { FilterOptions, GenderFilter, StyleFilter, SyllableFilter } from '../utils/generator';
 import { getOrigins } from '../utils/generator';
+import { sfx } from '../lib/sound';
 
 interface FilterPanelProps {
   filters: FilterOptions;
   onFilterChange: (filters: FilterOptions) => void;
+  surname: string;
+  onSurnameChange: (surname: string) => void;
 }
 
-export function FilterPanel({ filters, onFilterChange }: FilterPanelProps) {
-  const origins = getOrigins();
+const GENDERS: { value: GenderFilter; label: string; icon: string }[] = [
+  { value: 'all', label: 'All names', icon: '🌈' },
+  { value: 'girl', label: 'Girl', icon: '🐰' },
+  { value: 'boy', label: 'Boy', icon: '🐻' },
+  { value: 'unisex', label: 'Neutral only', icon: '🐥' },
+];
 
-  const handleChange = (key: keyof FilterOptions, value: string | number) => {
+const STYLES: { value: StyleFilter; label: string; icon: string }[] = [
+  { value: 'all', label: 'Any style', icon: '🎈' },
+  { value: 'classic', label: 'Classic', icon: '📜' },
+  { value: 'modern', label: 'Modern', icon: '🪁' },
+  { value: 'trending', label: 'Trending', icon: '🔥' },
+  { value: 'unique', label: 'Unique', icon: '🦄' },
+];
+
+const SYLLABLES: { value: SyllableFilter; label: string }[] = [
+  { value: 0, label: 'Any' },
+  { value: 1, label: '1' },
+  { value: 2, label: '2' },
+  { value: 3, label: '3+' },
+];
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const BLOCK_TINTS = ['mint', 'peach', 'lavender', 'butter', 'sky'];
+const origins = getOrigins();
+
+export function FilterPanel({ filters, onFilterChange, surname, onSurnameChange }: FilterPanelProps) {
+  const set = <K extends keyof FilterOptions>(key: K, value: FilterOptions[K]) => {
+    sfx.tap();
     onFilterChange({ ...filters, [key]: value });
   };
 
   return (
-    <div className="filter-panel">
-      <div className="filter-group">
-        <label>Gender</label>
-        <select
-          value={filters.gender}
-          onChange={(e) => handleChange('gender', e.target.value)}
-        >
-          <option value="all">All</option>
-          <option value="boy">Boy</option>
-          <option value="girl">Girl</option>
-          <option value="unisex">Unisex</option>
-        </select>
-      </div>
-
-      <div className="filter-group">
-        <label>Style</label>
-        <select
-          value={filters.popularity}
-          onChange={(e) => handleChange('popularity', e.target.value)}
-        >
-          <option value="all">All</option>
-          <option value="classic">Classic</option>
-          <option value="modern">Modern</option>
-          <option value="trending">Trending</option>
-          <option value="unique">Unique</option>
-        </select>
-      </div>
-
-      <div className="filter-group">
-        <label>Origin</label>
-        <select
-          value={filters.origin}
-          onChange={(e) => handleChange('origin', e.target.value)}
-        >
-          <option value="">Any</option>
-          {origins.map(origin => (
-            <option key={origin} value={origin}>{origin}</option>
+    <section className="filter-panel card">
+      <div className="filter-row">
+        <span className="filter-label">Who is it for?</span>
+        <div className="chips" role="radiogroup" aria-label="Gender">
+          {GENDERS.map((g) => (
+            <button
+              key={g.value}
+              role="radio"
+              aria-checked={filters.gender === g.value}
+              className={`chip ${filters.gender === g.value ? 'on' : ''}`}
+              onClick={() => set('gender', g.value)}
+            >
+              <span className="chip-icon">{g.icon}</span> {g.label}
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
-      <div className="filter-group">
-        <label>Starts with</label>
-        <input
-          type="text"
-          maxLength={1}
-          value={filters.startsWith}
-          onChange={(e) => handleChange('startsWith', e.target.value)}
-          placeholder="Any letter"
-        />
+      <div className="filter-row">
+        <span className="filter-label">Style</span>
+        <div className="chips" role="radiogroup" aria-label="Style">
+          {STYLES.map((s) => (
+            <button
+              key={s.value}
+              role="radio"
+              aria-checked={filters.popularity === s.value}
+              className={`chip ${filters.popularity === s.value ? 'on' : ''}`}
+              onClick={() => set('popularity', s.value)}
+            >
+              <span className="chip-icon">{s.icon}</span> {s.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="filter-group">
-        <label>How many? ({filters.count})</label>
-        <input
-          type="range"
-          min="3"
-          max="20"
-          value={filters.count}
-          onChange={(e) => handleChange('count', parseInt(e.target.value))}
-        />
+      <div className="filter-grid">
+        <div className="filter-row">
+          <span className="filter-label">Syllables</span>
+          <div className="chips" role="radiogroup" aria-label="Syllables">
+            {SYLLABLES.map((s) => (
+              <button
+                key={s.value}
+                role="radio"
+                aria-checked={filters.syllables === s.value}
+                className={`chip small ${filters.syllables === s.value ? 'on' : ''}`}
+                onClick={() => set('syllables', s.value)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <label className="filter-row">
+          <span className="filter-label">Origin</span>
+          <select className="soft-input" value={filters.origin} onChange={(e) => set('origin', e.target.value)}>
+            <option value="">Anywhere in the world 🌍</option>
+            {origins.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="filter-row">
+          <span className="filter-label">Your surname (optional)</span>
+          <input
+            className="soft-input"
+            value={surname}
+            onChange={(e) => onSurnameChange(e.target.value)}
+            placeholder="e.g. Rivers"
+            maxLength={40}
+          />
+        </label>
+
+        <label className="filter-row">
+          <span className="filter-label">How many? <b>{filters.count}</b></span>
+          <input
+            className="range"
+            type="range"
+            min={3}
+            max={24}
+            value={filters.count}
+            onChange={(e) => set('count', Number(e.target.value))}
+          />
+        </label>
       </div>
-    </div>
+
+      <div className="filter-row">
+        <span className="filter-label">Starts with</span>
+        <div className="letter-blocks" role="radiogroup" aria-label="First letter">
+          {LETTERS.map((l, i) => (
+            <button
+              key={l}
+              role="radio"
+              aria-checked={filters.startsWith === l}
+              className={`letter-block tint-${BLOCK_TINTS[i % BLOCK_TINTS.length]} ${filters.startsWith === l ? 'on' : ''}`}
+              onClick={() => set('startsWith', filters.startsWith === l ? '' : l)}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
